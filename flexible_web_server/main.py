@@ -24,6 +24,10 @@ from machine import RTC
 from time import sleep
 
 rtc = RTC()
+adc = machine.ADC(0)
+switch_pin = machine.Pin(2, machine.Pin.IN)
+pin = machine.Pin(9, machine.Pin.OUT)
+
 try:
     seconds = ntptime.time()
 except:
@@ -41,14 +45,35 @@ def time():
 
     return response_template % body
 
+def light_on():
+    pin.value(1)
+    body = "You turned a light on!"
+    return response_template % body
+
+def light_off():
+    pin.value(0)
+    body = "You turned a light off!"
+    return response_template % body
+
+def switch():
+    body = "{state: " + str(switch_pin.value()) + "}"
+    return response_template % body
+
+def light():
+    body = "{value: " + str(adc.read()) + "}"
+    return response_template % body
+
 def dummy():
     body = "This is a dummy endpoint"
-
     return response_template % body
 
 handlers = {
+    'switch': switch,
+    'light_on': light_on,
+    'light_off': light_off,
     'time': time,
     'dummy': dummy,
+    'light': light,
 }
 
 def main():
